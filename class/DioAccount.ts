@@ -1,12 +1,16 @@
 export abstract class DioAccount {
   private name: string
   private readonly accountNumber: number
-  balance: number = 0
+  private balance: number = 0
   private status: boolean = true
 
   constructor(name: string, accountNumber: number){
     this.name = name
     this.accountNumber = accountNumber
+  }
+
+  getStatus(): boolean {
+    return this.status
   }
 
   setName = (name: string): void => {
@@ -18,25 +22,50 @@ export abstract class DioAccount {
     return this.name
   }
 
-  deposit = (): void => {
-    if(this.validateStatus()){
-      console.log('Voce depositou')
+  deposit = (value: number): void => {
+    try {
+      if (this.validateStatus()) {
+        let newBalance = this.getBalance()
+        newBalance = newBalance + value
+        this.setBalance(newBalance)
+        return console.log(`Voce depositou ${this.currency(value)}. Seu novo saldo é: ${this.currency(newBalance)}`)
+      }
+    } catch (error) {
+      throw new Error('Não foi possível finalizar o depósito!')
     }
   }
 
-  withdraw = (): void => {
-    console.log('Voce sacou')
+  withdraw = (value: number):void => {
+    try {
+      if (this.validateStatus() && value <= this.getBalance()) {
+        let newBalance = this.getBalance()
+        newBalance = newBalance - value
+        this.setBalance(newBalance)
+        console.log(`Você conseguiu sacar ${this.currency(value)}. Seu novo saldo é: ${this.currency(newBalance)}`)
+      }
+    } catch (error) {
+      throw new Error('Não foi possível realizar o saque!')
+    }
   }
 
-  getBalance = (): void => {
-    console.log(this.balance)
+  getBalance = (): number => {
+    return this.balance
   }
 
-  private validateStatus = (): boolean => {
+  setBalance = (balance: number): void => {
+    this.balance = balance
+  }
+
+  validateStatus = (): boolean => {
     if (this.status) {
       return this.status
     }
 
     throw new Error('Conta inválida')
+  }
+
+  currency(value: number): string {
+    const newCurrency = value.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})
+    return newCurrency
   }
 }
